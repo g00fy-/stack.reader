@@ -55,6 +55,7 @@
                 <th>Question</th>
                 <th data-action="sort" data-field="hot" data-order="desc">Votes</th>
                 <th data-action="sort" data-field="votes" data-order="desc">Last activity</th>
+                <th>Answers</th>
                 <th>Tags</th>
             </tr>
             </thead>
@@ -67,7 +68,8 @@
         <td><%= owner.display_name %></td>
         <td><a href="<%= link %>" target="_blank"><%= title %></a></td>
         <td><%= score %></td>
-        <td><%= last_activity_date %></td>
+        <td><%= new Date(last_activity_date*1000).toLocaleString() %></td>
+        <td><span class="badge <% if(is_answered){ %>badge-success<% }else{ %>badge-important<% } %>"><%= answer_count %></span></td>
         <td><% _.each(tags,function(tag){ %>
             <span class="label label-success"><%= tag %></span>
             <% }) %></td>

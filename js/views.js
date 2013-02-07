@@ -1,4 +1,11 @@
+StackSearchMixin = SearchMixin.extend({
+  buildSearchQuery:function(value){
+    return {q:value}
+  }
+});
+
 QuestionListView = Generic.ListView.extend({
+//    wrappers:[FilterWrapper,SearchWrapper],
     template:"#question-list-template",
     itemViewContainer:"tbody",
     itemViewOptions:{
@@ -12,9 +19,6 @@ QuestionListView = Generic.ListView.extend({
     },
     buildSortQuery:function(field,order){
         return {sort:field,order:order||'desc'}
-    },
-    buildSearchQuery:function(value){
-        return {q:value}
     },
     fetchPage:function(page){
         this.page = page;
@@ -35,7 +39,7 @@ QuestionListView = Generic.ListView.extend({
       }
       this.ui.queryOptions.text(JSON.stringify(this.collection.fetchOptions,null,'    '));
     }
-}).mixin(SortMixin,SearchMixin,PaginatedMixin,LoadingMixin)
+}).mixin(SortMixin,StackSearchMixin,PaginatedMixin,LoadingMixin)
 
 TagsWidget = Generic.ListWidget.extend({
   type:Tags,
