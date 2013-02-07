@@ -3,11 +3,15 @@
 
 <html>
 <head>
+    <link href="http://twitter.github.com/bootstrap/assets/css/bootstrap.css" rel="stylesheet">
     <meta charset="utf-8">
     <title>asd</title>
     <style>
-        .error {
-            color: red;
+        body{
+            padding-top: 30px;
+        }
+        [data-order]:hover{
+            cursor: pointer;
         }
         [data-order='asc']:after{
             content:"↑"
@@ -15,8 +19,11 @@
         [data-order='desc']:after{
             content:"↓"
         }
-        [data-region='main']{
-            float: right;
+        [data-region='aside'] tr{
+            cursor: pointer !important;
+        }
+        [data-region='aside'] tr:hover{
+            background:chartreuse;
         }
     </style>
     <script src="js/jquery.js"></script>
@@ -33,11 +40,14 @@
 
     <script type="text/html" id="question-list-template">
         <input type="text" value="" data-action="search" data-on="keyup">
-        <button data-action=nextPage>Next page</button>
-        Page: <span data-bind='currentPage'>1</span>
+        <ul class="pager">
+            <li class="previous"><a href="#" data-action="prev:page">Previous</a></li>
+            <li class="next"><a href="#" data-action="next:page">Next</a></li>
+        </ul>
+        <span>Page: </span> <span data-bind='currentPage'>1</span>
         <span id="loading"></span>
         <pre data-bind='queryOptions'></pre>
-        <table>
+        <table class="table">
 
             <thead>
             <tr>
@@ -55,20 +65,18 @@
 
     <script type="text/html" id="question-template">
         <td><%= owner.display_name %></td>
-        <td><%= title %></td>
+        <td><a href="<%= link %>" target="_blank"><%= title %></a></td>
         <td><%= score %></td>
         <td><%= last_activity_date %></td>
-        <td><%= tags.join(' ,') %></td>
+        <td><% _.each(tags,function(tag){ %>
+            <span class="label label-success"><%= tag %></span>
+            <% }) %></td>
     </script>
 
-    <script type="text/html" id="page-template">
-        <main data-region=main></main>
-        <aside data-region=aside></aside>
-    </script>
 
     <script type="text/html" id="tags-template">
         <h1>Tags</h1>
-        <table>
+        <table class="table">
             <thead>
             <tr>
                 <th>Name</th>
@@ -79,12 +87,32 @@
         </table>
     </script>
 
+    <script type="text/html" id="page-template">
+        <div class="row-fluid">
+            <div class="span3">
+                <div class="well sidebar-nav" data-region="aside">
+                </div><!--/.well -->
+            </div><!--/span-->
+            <div class="span9" data-region="main"></div><!--/span-->
+        </div><!--/row-->
+    </script>
     <script type="text/html" id="tag-template">
         <td><%= name %></td>
-        <td><%= count %></td>
+        <td><span class="badge badge-info"><%= ~~(count/1000) %>K</span></td>
     </script>
 
 </head>
 <body>
+
+    <div class="container-fluid" data-region="page">
+
+
+        <hr>
+
+        <footer>
+            <p>© Company 2012</p>
+        </footer>
+
+    </div>
 </body>
 </html>

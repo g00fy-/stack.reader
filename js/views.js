@@ -6,6 +6,8 @@ QuestionListView = Generic.ListView.extend({
     },
     ui:{
       currentPage:"[data-bind='currentPage']" ,
+      nextPageBtn:"li.next",
+      prevPageBtn:"li.previous",
       queryOptions:"[data-bind='queryOptions']"
     },
     buildSortQuery:function(field,order){
@@ -26,6 +28,11 @@ QuestionListView = Generic.ListView.extend({
     },
     onRender:function(){
       _super(QuestionListView,this,'onRender',true).apply(this,arguments);
+      if(this.hasPrevPage()){
+        this.ui.prevPageBtn.removeClass('disabled')
+      }else{
+        this.ui.prevPageBtn.addClass('disabled');
+      }
       this.ui.queryOptions.text(JSON.stringify(this.collection.fetchOptions,null,'    '));
     }
 }).mixin(SortMixin,SearchMixin,PaginatedMixin,LoadingMixin)
@@ -47,13 +54,12 @@ TagsWidget = Generic.ListWidget.extend({
 }).mixin(PrefetchListMixin,WidgetMixin,MultiSelectMixin);
 
 var PageLayout = Marionette.Layout.extend({
-    el: "body",
+    el: "[data-region='page']",
+    template:"#page-template",
     mainView: QuestionListView,
     asideView: Generic.AsideView.extend({
       widgets:[TagsWidget.extend({name:'tag:filter'})]
     }),
-    template: "#page-template",
-
     regions: {
         main: "[data-region='main']",
         aside: "[data-region='aside']"
