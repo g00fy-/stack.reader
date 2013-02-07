@@ -1,13 +1,16 @@
 (function(Backbone){
     var Collection = Backbone.Collection;
     Backbone.Collection = Collection.extend({
-        fetchOptions:{},
+        fetchOptions:{data:{}},
+        defaultFetchOptions:{data:{}},
         fetch:function(options){
+            options = _.defaults(options ||{},{data:{}});
             if(this.xhr&&this.xhr.state()=='pending'){
                 this.xhr.abort();
             }
-            this.fetchOptions=options||{};
-            return this.xhr = Collection.prototype.fetch.apply(this,arguments)
+            this.fetchOptions = options;
+            _.defaults(options.data, this.defaultFetchOptions.data);
+            return this.xhr = Collection.prototype.fetch.call(this,options)
         },
         refetch:function(options){
             var options = _.extend({},options);

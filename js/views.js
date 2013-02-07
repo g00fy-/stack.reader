@@ -1,56 +1,58 @@
-
-var UserDetailView = Marionette.ItemView.extend({
-    template: _.template("chuj")
-},{
-    mixin: function(){
-        return _.reduceRight(arguments, function(current, mixin){
-            return mixin.contribute(current);
-        }, this);
+QuestionListView = Generic.ListView.extend({
+    template:"#question-list-template",
+    itemViewContainer:"tbody",
+    itemViewOptions:{
+        template:"#question-template"
+    },
+    ui:{
+      currentPage:"[data-bind='currentPage']" ,
+      queryOptions:"[data-bind='queryOptions']"
+    },
+    buildSortQuery:function(field,order){
+        return {sort:field,order:order||'desc'}
+    },
+    buildSearchQuery:function(value){
+        return {q:value}
+    },
+    fetchPage:function(page){
+        this.page = page;
+        return this.collection.refetch({data:{page:page}});
+    },
+    hasNextPage:function(){
+      return true;
+    },
+    onRequestFinished:function(){
+      this.triggerMethod('page:changed')
+    },
+    onRender:function(){
+      _super(QuestionListView,this,'onRender',true).apply(this,arguments);
+      this.ui.queryOptions.text(JSON.stringify(this.collection.fetchOptions,null,'    '));
     }
-}).mixin(
+}).mixin(SortMixin,SearchMixin,PaginatedMixin,LoadingMixin)
 
-    );
-
-ListWidget = Generic.ListWidget.extend({
-    template:"#widget-service-list",
-    itemViewContainer:'ol.widget-list',
-    initialize:function(){
-        if(!this.collection && this.type){
-            this.collection = new this.type();
-        }
-        this.collection.fetch();
-        if(this.options.vent){
-            this.on('change',function(value){
-                this.options.vent.triggerMethod(this.name,value,this);
-            }.bind(this))
-        }
+TagsWidget = Generic.ListWidget.extend({
+  type:Tags,
+  template:"#tags-template",
+  itemViewContainer:"tbody",
+  itemView:Generic.ListWidget.prototype.itemView.extend({
+    template:"#tag-template",
+    tagName:"tr",
+    triggers:{
+      'click':'toggle'
+    },
+    value:function(){
+      return this.model.get('name');
     }
-});
+  })
+}).mixin(PrefetchListMixin,WidgetMixin,MultiSelectMixin);
 
-var QuestionsWidget = Generic.ListWidget.extend({
-    type: Questions,
-    template: "#question-list-template",
-    itemViewContainer: "tbody",
-    itemView: Generic.ListWidget.prototype.itemView.extend({
-        template: "#question-template",
-        el: "tr"
+var PageLayout = Marionette.Layout.extend({
+    el: "body",
+    mainView: QuestionListView,
+    asideView: Generic.AsideView.extend({
+      widgets:[TagsWidget.extend({name:'tag:filter'})]
     }),
-    initialize: function(){
-        this.collection = new this.type();
-        this.collection.fetch();
-    }
-});
-
-var TweetsLayout = Marionette.Layout.extend({
-    asideView:Generic.AsideView.extend({
-        widgets:[
-            QuestionsWidget.extend({name:"questions"})
-        ]
-    }),
-    el: "#tweets",
-    mainView: UserDetailView,
-
-    template: "#tweets-page",
+    template: "#page-template",
 
     regions: {
         main: "[data-region='main']",
@@ -61,11 +63,6 @@ var TweetsLayout = Marionette.Layout.extend({
         this.options.vent = this;
     },
 
-    render: function(){
-        console.log("pageview render", this.cid);
-        return Marionette.Layout.prototype.render.apply(this, arguments)
-    },
-
     onRender: function(){
         if(this.mainView){
             this.main.show(new this.mainView(this.options));
@@ -74,11 +71,17 @@ var TweetsLayout = Marionette.Layout.extend({
             this.aside.show(new this.asideView(this.options));
         }
     },
-    onTweets: function(x){
-        console.log(x);
+    onTagFilter:function(selected){
+      this.collection.refetch({
+         data:{tagged:selected}
+      });
     }
 });
 
+
 $(function(){
-    new TweetsLayout().render();
+    var collection = new Questions();
+    var page = new PageLayout({collection:collection});
+    page.render();
+    collection.fetch();
 });

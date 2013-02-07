@@ -3,7 +3,22 @@
 
 <html>
 <head>
+    <meta charset="utf-8">
     <title>asd</title>
+    <style>
+        .error {
+            color: red;
+        }
+        [data-order='asc']:after{
+            content:"↑"
+        }
+        [data-order='desc']:after{
+            content:"↓"
+        }
+        [data-region='main']{
+            float: right;
+        }
+    </style>
     <script src="js/jquery.js"></script>
     <script src="js/underscore.js"></script>
     <script src="js/backbone.js"></script>
@@ -19,14 +34,18 @@
     <script type="text/html" id="question-list-template">
         <input type="text" value="" data-action="search" data-on="keyup">
         <button data-action=nextPage>Next page</button>
-        Page: <span id=currentPage>1</span>
+        Page: <span data-bind='currentPage'>1</span>
         <span id="loading"></span>
+        <pre data-bind='queryOptions'></pre>
         <table>
 
             <thead>
             <tr>
                 <th>Nick</th>
-                <th>Tweet</th>
+                <th>Question</th>
+                <th data-action="sort" data-field="hot" data-order="desc">Votes</th>
+                <th data-action="sort" data-field="votes" data-order="desc">Last activity</th>
+                <th>Tags</th>
             </tr>
             </thead>
 
@@ -37,15 +56,35 @@
     <script type="text/html" id="question-template">
         <td><%= owner.display_name %></td>
         <td><%= title %></td>
+        <td><%= score %></td>
+        <td><%= last_activity_date %></td>
+        <td><%= tags.join(' ,') %></td>
     </script>
 
-    <script type="text/html" id="tweets-page">
+    <script type="text/html" id="page-template">
         <main data-region=main></main>
         <aside data-region=aside></aside>
     </script>
 
+    <script type="text/html" id="tags-template">
+        <h1>Tags</h1>
+        <table>
+            <thead>
+            <tr>
+                <th>Name</th>
+                <th>Count</th>
+            </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </script>
+
+    <script type="text/html" id="tag-template">
+        <td><%= name %></td>
+        <td><%= count %></td>
+    </script>
+
 </head>
 <body>
-    <div id="tweets"></div>
 </body>
 </html>
