@@ -1,0 +1,3 @@
+[submodule "js/marionette.generic"]
+	path = js/marionette.generic
+	url = https://github.com/g00fy-/marionette.generic.git
