@@ -1,11 +1,7 @@
-StackSearchMixin = SearchMixin.extend({
-  buildSearchQuery:function(value){
-    return {q:value}
-  }
-});
-
 QuestionListView = Generic.ListView.extend({
-//    wrappers:[FilterWrapper,SearchWrapper],
+    attributes:function(){
+      return {'data-view':this.cid};
+    },
     template:"#question-list-template",
     itemViewContainer:"tbody",
     itemViewOptions:{
@@ -17,8 +13,13 @@ QuestionListView = Generic.ListView.extend({
       prevPageBtn:"li.previous",
       queryOptions:"[data-bind='queryOptions']"
     },
-    buildSortQuery:function(field,order){
-        return {sort:field,order:order||'desc'}
+    sort:function(options){
+      var data = {};
+      _.each(options,function(order,field){
+        data.sort = field;
+        data.order = order || 'desc';
+      });
+      this.collection.refetch({data:data});
     },
     fetchPage:function(page){
         this.page = page;
@@ -27,8 +28,8 @@ QuestionListView = Generic.ListView.extend({
     hasNextPage:function(){
       return true;
     },
-    onRequestFinished:function(){
-      this.triggerMethod('page:changed')
+    search:function(value){
+      this.collection.refetch({data:{q:value}});
     },
     onRender:function(){
       _super(QuestionListView,this,'onRender',true).apply(this,arguments);
@@ -39,7 +40,7 @@ QuestionListView = Generic.ListView.extend({
       }
       this.ui.queryOptions.text(JSON.stringify(this.collection.fetchOptions,null,'    '));
     }
-}).mixin(SortMixin,StackSearchMixin,PaginatedMixin,LoadingMixin)
+}).mixin(SortMixin,PaginatedMixin,LoadingMixin,SearchMixin);
 
 TagsWidget = Generic.ListWidget.extend({
   type:Tags,
